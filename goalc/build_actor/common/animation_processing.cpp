@@ -24,8 +24,14 @@ std::vector<T> compute_keyframes(const std::vector<float>& times,
                                  float framerate,
                                  bool quaternion_interp) {
   std::vector<T> ret;
-  ASSERT(!times.empty());
+   ASSERT(!times.empty());
   ASSERT(times.size() == values.size());
+
+  if (times.size() == 1 || times.back() <= 0.0f) {
+    ret.push_back(values.front());
+    return ret;
+  }
+
   size_t i = 0;
   float t = 0;
   while (t < times.back()) {

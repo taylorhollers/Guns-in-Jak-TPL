@@ -160,11 +160,21 @@ void extract(const std::string& name,
   std::map<int, tfrag3::MercDraw> draw_by_material;
   int mesh_count = 0;
   int prim_count = 0;
-  int joints = 3;
-  auto skin_idx = find_single_skin(model, all_nodes);
-  if (skin_idx) {
-    joints += get_joint_count(model, *skin_idx);
+ int joints = 3;
+int joint_offset = 1;
+auto skin_idx = find_single_skin(model, all_nodes);
+if (skin_idx) {
+  joints += get_joint_count(model, *skin_idx);
+
+  const auto& skin = model.skins.at(*skin_idx);
+  for (auto joint_node_idx : skin.joints) {
+    if (model.nodes.at(joint_node_idx).name == "align") {
+      joint_offset = 0;
+      joints = get_joint_count(model, *skin_idx);
+      break;
+    }
   }
+}
 
   for (const auto& n : all_nodes) {
     const auto& node = model.nodes[n.node_idx];
@@ -192,7 +202,8 @@ void extract(const std::string& name,
         ASSERT(out.new_colors.size() == out.new_vertices.size());
 
         if (prim.attributes.count("JOINTS_0") && prim.attributes.count("WEIGHTS_0")) {
-          auto joints_and_weights = gltf_util::extract_and_flatten_joints_and_weights(model, prim);
+          auto joints_and_weights =
+              gltf_util::extract_and_flatten_joints_and_weights(model, prim, joint_offset);
           ASSERT(joints_and_weights.size() == verts.vtx.size());
           out.joints_and_weights.insert(out.joints_and_weights.end(), joints_and_weights.begin(),
                                         joints_and_weights.end());

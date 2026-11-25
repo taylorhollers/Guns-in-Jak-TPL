@@ -1681,6 +1681,7 @@
 (build-actor "test-actor" :gen-mesh #t)
 
 (build-actor "on-off-block" :gen-mesh #t)
+(build-actor "gun" :texture-bucket 2 :force-run #t)
 
 ;;;;;;;;;;;;;;;;;;;;;
 ;; Game Engine Code

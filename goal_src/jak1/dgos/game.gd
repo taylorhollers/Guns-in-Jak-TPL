@@ -326,6 +326,7 @@
   "fuelcell-naked-ag.go"
   "eichar-ag.go"
   "sidekick-ag.go"
+  "gun-ag.go"
   "deathcam-ag.go"
   "game-cnt.go"
   "rigid-body-h.o"

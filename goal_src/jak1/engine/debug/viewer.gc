@@ -4,6 +4,32 @@
 (require "engine/common-obs/generic-obs.gc")
 (require "engine/anim/aligner.gc")
 (require "engine/entity/entity.gc")
+(defun matrix->transformq ((arg0 transformq) (arg1 matrix))
+  (rlet ((Q :class vf)
+         (vf0 :class vf)
+         (vf2 :class vf))
+    (init-vf0-vector)
+    (.lvf vf2 (&-> arg1 vector 3 quad))
+    (.div.vf Q vf0 vf2 :fsf #b11 :ftf #b11)
+    (.wait.vf)
+    (.mul.vf.xyz vf2 vf2 Q)
+    (.nop.vf)
+    (.nop.vf)
+    (.mov.vf.w vf2 vf0)
+    (.svf (&-> arg0 trans quad) vf2)
+    (let ((s4-0 (matrix-copy! (new 'stack-no-clear 'matrix) arg1)))
+      (vector-normalize! (-> s4-0 vector 0) 1.0)
+      (vector-normalize! (-> s4-0 vector 1) 1.0)
+      (vector-normalize! (-> s4-0 vector 2) 1.0)
+      (vector-cross! (-> s4-0 vector 2) (-> s4-0 vector 0) (-> s4-0 vector 1))
+      (vector-cross! (-> s4-0 vector 1) (-> s4-0 vector 2) (-> s4-0 vector 0))
+      (matrix->quaternion (-> arg0 quat) s4-0))
+    (set-vector! (-> arg0 scale)
+                 (vector-length (-> arg1 vector 0))
+                 (vector-length (-> arg1 vector 1))
+                 (vector-length (-> arg1 vector 2))
+                 1.0)
+    arg0))
 
 ;; DECOMP BEGINS
 
@@ -36,7 +62,17 @@
                   1.0)
           (suspend)
           (ja :num! (seek!)))))
-  :post ja-post)
+     :post
+    (behavior ()
+      (when (and *target*
+                 (string= (-> self janim name) "gun-idle-red"))
+        (vector-copy!
+  (-> self root trans)
+  (-> *target* node-list data 23 bone position))
+(quaternion-copy!
+  (-> self root quat)
+  (-> *target* control quat)))
+      (ja-post)))
 
 (define viewer-string (new 'global 'string 64 (the-as string #f)))
 
@@ -99,8 +135,10 @@
            (set! s5-0 s1-0)))
         (if (and s4-0 s3-0 s5-0) (goto cfg-34))))
     (label cfg-34)
-    (cond
-      ((and s4-0 s3-0 s5-0)
+(when (string= arg0 "gun")
+  (set! s5-0 4))
+(cond
+  ((and s4-0 s3-0 s5-0)
        (set! (-> self janim) (the-as art-joint-anim (-> s2-0 data s5-0)))
        (let ((a1-3 *viewer-sg*))
          (set! (-> a1-3 art-group-name) arg0)
