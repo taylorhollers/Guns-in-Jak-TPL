@@ -916,7 +916,7 @@
         (let ((s5-2 (vector-z-quaternion! (new 'stack-no-clear 'vector) (-> self control quat))))
           (set! (-> s5-2 y) 0.0)
           (vector-normalize! s5-2 (-> *TARGET-bank* yellow-projectile-speed))
-          (when (and (= (-> self fact eco-type) (pickup-type eco-yellow)) (>= (-> self fact eco-level) 1.0))
+          (when #t
             (let ((gp-1 (get-process *default-dead-pool* projectile-yellow #x4000)))
               (set! gp-0
                     (ppointer->handle (when gp-1
@@ -930,6 +930,26 @@
                                                             (if (>= (-> self fact eco-level) (-> *FACT-bank* eco-level-max)) 25 9)
                                                             #f)
                                         (-> gp-1 ppointer)))))
+                                        (dotimes (i 5)
+  (when (!= i 2)
+    (let ((spread (new 'stack-no-clear 'vector))
+          (angle (* (the float (- i 2)) 0.1339745)))
+      (set! (-> spread x)
+            (+ (-> s5-2 x) (* (-> s5-2 z) angle)))
+      (set! (-> spread y) 0.0)
+      (set! (-> spread z)
+            (- (-> s5-2 z) (* (-> s5-2 x) angle)))
+      (vector-normalize! spread
+                         (-> *TARGET-bank* yellow-projectile-speed))
+      (process-spawn projectile-yellow
+                     :init projectile-init-by-other
+                     (-> self entity)
+                     (vector<-cspace! (new 'stack-no-clear 'vector)
+                                      (joint-node eichar-lod0-jg sk_rhand))
+                     spread
+                     9
+                     #f
+                     :to self))))
             (set-time! (-> self control unknown-dword82))))
         (ja-no-eval :group! eichar-yellow-running-blast-ja :num! (seek!) :frame-num (ja-aframe (the-as float 9.0) 0))
         (until (ja-done? 0)
