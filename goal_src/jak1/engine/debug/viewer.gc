@@ -62,18 +62,7 @@
                   1.0)
           (suspend)
           (ja :num! (seek!)))))
-     :post
-    (behavior ()
-      (when (and *target*
-                 (string= (-> self janim name) "gun-idle-red"))
-        (vector-copy!
-  (-> self root trans)
-  (-> *target* node-list data 23 bone position))
-(quaternion-copy!
-  (-> self root quat)
-  (-> *target* control quat)))
-      (ja-post)))
-
+    :post ja-post)
 (define viewer-string (new 'global 'string 64 (the-as string #f)))
 
 (define viewer-ja-name (new 'global 'string 64 (the-as string #f)))

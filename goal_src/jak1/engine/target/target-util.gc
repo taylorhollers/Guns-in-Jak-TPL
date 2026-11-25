@@ -19,7 +19,101 @@
   :shadow eichar-shadow-mg
   :texture-level 2
   :sort 1)
+  ;; Scatter Gun alternate skeleton
+(def-actor jchar-gun
+  :bounds (0 0 0 3.5)
+  :art (jakb-gun-stance-ja)
+  :texture-level 2
+  :sort 1)
 
+(set! (-> *jchar-gun-sg* art-group-name) "eichar-gun-test")
+;; Scatter Gun weapon actor
+(def-actor gun
+  :bounds (0 0 0 3.5)
+  :art (gun-ammo-idle-ja
+        gun-idle-ja
+        gun-idle-red-ja)
+  :texture-level 2
+  :sort 1)
+;; Scatter Gun idle state
+(defstate scatter-gun-idle (scatter-gun)
+  :code
+    (behavior ()
+      (ja-channel-push! 1 (seconds 0.1))
+            (ja :group!
+          (the art-joint-anim
+            (-> (art-group-get-by-name *level* "gun") data 4))
+          :num! (identity 0.0))
+      (loop
+        (suspend)))
+    :post
+    (behavior ()
+      (when *target*
+        (if (= (-> *target* draw jgeo)
+               (-> *target* gun-jgeo))
+            (begin
+              (logclear! (-> self draw status)
+                         (draw-status hidden))
+              (vector-copy!
+                (-> self root trans)
+                (-> *target* node-list data 46 bone position))
+              (quaternion-copy!
+                (-> self root quat)
+                (-> *target* control quat)))
+            (logior! (-> self draw status)
+                     (draw-status hidden))))
+      (ja-post)))
+;; Scatter Gun process initialization
+(defbehavior scatter-gun-init-by-other scatter-gun ()
+  (set! (-> self root) (new 'process 'trsqv))
+  (initialize-skeleton self *gun-sg* (the pair 0))
+  (false! (-> self draw shadow))
+  (ja-channel-set! 0)
+  (go scatter-gun-idle))
+;; Scatter Gun skeleton switching
+(defbehavior target-set-gun-lod target ((mode symbol))
+  (case mode
+    (('gun)
+     (lods-assign! (-> self draw) (-> self gun-lod))
+     (set! (-> self node-list) (-> self gun-node-list))
+     (set! (-> self draw skeleton) (-> self gun-skeleton))
+     (set! (-> self draw jgeo) (-> self gun-jgeo))
+     (logclear! (-> self skel status)
+                (janim-status blerc blerc-done eye eye-done))
+     (set! (-> self draw origin-joint-index) (the uint 47))
+     (set! (-> self draw shadow-joint-index) (the uint 47))
+     (set! (-> self control unknown-cspace00 parent)
+           (-> self node-list data 22))
+     (set! (-> self control unknown-cspace00 joint)
+           (-> self node-list data 36 joint))
+     (set! (-> self control unknown-cspace10 parent)
+           (-> self node-list data 44))
+     (set! (-> self node-list data 0 param0)
+           (-> self old-node-list data 0 param0))
+     (set! (-> self node-list data 0 param1)
+           (-> self old-node-list data 0 param1))
+     (set! (-> self node-list data 0 param2)
+           (-> self old-node-list data 0 param2)))
+    (('normal)
+     (lods-assign! (-> self draw) (-> self old-lod))
+     (set! (-> self node-list) (-> self old-node-list))
+     (set! (-> self draw skeleton) (-> self old-skeleton))
+     (set! (-> self draw jgeo) (-> self old-jgeo))
+     (logior! (-> self skel status) (janim-status inited eye))
+     (set! (-> self draw origin-joint-index) (the uint 33))
+     (set! (-> self draw shadow-joint-index) (the uint 33))
+     (set! (-> self control unknown-cspace00 parent)
+           (joint-node eichar-lod0-jg lindA))
+     (set! (-> self control unknown-cspace00 joint)
+           (the joint (joint-node eichar-lod0-jg rindA)))
+     (set! (-> self control unknown-cspace10 parent)
+           (joint-node eichar-lod0-jg LshoulderPad))))
+  (when (-> self sidekick)
+    (set! (-> self sidekick 0 node-list data 0 param1)
+          (the basic (-> self control unknown-cspace10 parent))))
+  (fill-skeleton-cache self)
+  (ja-channel-set! 0)
+  (none))
 (define *target-shadow-control*
   (new 'static
        'shadow-control

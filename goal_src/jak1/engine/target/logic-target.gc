@@ -1261,6 +1261,24 @@
   (set! (-> self manipy) (the-as (pointer manipy) #f))
   (set! (-> self event-hook) target-generic-event-handler)
   (set! (-> self current-level) #f)
+  ;; Scatter Gun alternate skeleton initialization
+(let ((ag (art-group-get-by-name (-> *level* level-default) "eichar-gun-test")))
+  (when ag
+    (setup-lods! (-> self old-lod) *jchar-sg* (-> self draw art-group) (the entity #f))
+    (setup-lods! (-> self gun-lod) *jchar-gun-sg* ag (the entity #f))
+    (set! (-> self old-node-list) (-> self node-list))
+    (set! (-> self old-skeleton) (-> self draw skeleton))
+    (set! (-> self gun-node-list) (make-nodes-from-jg-no-connection (the art-joint-geo (-> ag data 0))))
+    (set! (-> self gun-skeleton) (-> self draw skeleton))
+    (set! (-> self draw skeleton) (-> self old-skeleton))
+    (set! (-> self old-jgeo) (-> self draw jgeo))
+    (set! (-> self gun-jgeo) (the art-joint-geo (-> ag data 0)))))
+    ;; Automatically spawn Scatter Gun
+  (process-spawn scatter-gun
+                 :name "scatter-gun"
+                 :init scatter-gun-init-by-other
+                 :from *default-dead-pool*
+                 :to self)
   (level-setup)
   (go target-continue arg0)
   (none))

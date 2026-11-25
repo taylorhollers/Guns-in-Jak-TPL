@@ -11,6 +11,7 @@
 (declare-type flut-info basic)
 
 (declare-type sidekick process-drawable)
+(declare-type scatter-gun process-drawable)
 
 ;; DECOMP BEGINS
 
@@ -41,7 +42,19 @@
    (fp-hud              handle)
    (no-load-wait        time-frame)
    (no-look-around-wait time-frame)
-   (burn-proc           handle))
+      (burn-proc           handle)
+
+   ;; Scatter Gun skeleton switching
+   (old-node-list       cspace-array)
+   (gun-node-list       cspace-array)
+   (old-skeleton        skeleton)
+   (gun-skeleton        skeleton)
+   (old-jgeo            art-joint-geo)
+   (gun-jgeo            art-joint-geo)
+   (old-lod             lod-set :inline)
+   (gun-lod             lod-set :inline)
+   (scatter-weapon      handle))
+   
   (:methods
    (find-edge-grabs! (_type_ collide-cache) object))
   (:states
@@ -153,6 +166,10 @@
    target-yellow-jump-blast))
 
 (define-perm *target* target #f)
+;; Dedicated Scatter Gun process
+(deftype scatter-gun (process-drawable)
+  ((self scatter-gun :override)
+   (parent (pointer target) :override)))
 
 (deftype sidekick (process-drawable)
   ((parent-override  (pointer target) :overlay-at parent)
