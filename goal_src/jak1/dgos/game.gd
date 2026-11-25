@@ -327,6 +327,8 @@
   "eichar-ag.go"
   "sidekick-ag.go"
   "gun-ag.go"
+  "eichar-gun-test-ag.go"
+  "eichar-board+0-ag.go"
   "deathcam-ag.go"
   "game-cnt.go"
   "rigid-body-h.o"

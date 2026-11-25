@@ -137,6 +137,8 @@
     (label cfg-34)
 (when (string= arg0 "gun")
   (set! s5-0 4))
+(when (string= arg0 "eichar-board+0")
+  (set! s5-0 47))
 (cond
   ((and s4-0 s3-0 s5-0)
        (set! (-> self janim) (the-as art-joint-anim (-> s2-0 data s5-0)))

@@ -168,11 +168,20 @@ if (skin_idx) {
 
   const auto& skin = model.skins.at(*skin_idx);
   for (auto joint_node_idx : skin.joints) {
-    if (model.nodes.at(joint_node_idx).name == "align") {
-      joint_offset = 0;
-      joints = get_joint_count(model, *skin_idx);
-      break;
-    }
+if (model.nodes.at(joint_node_idx).name == "align") {
+  joint_offset = 0;
+  joints = get_joint_count(model, *skin_idx);
+
+ if (name.find("eichar-board") != std::string::npos ||
+    name.find("eichar-gun-test") != std::string::npos ||
+    name == "gun-lod0" ||
+    name == "gun") {
+  joint_offset = 1;
+  joints += 1;
+}
+
+  break;
+}
   }
 }
 

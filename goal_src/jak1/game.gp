@@ -1682,7 +1682,8 @@
 
 (build-actor "on-off-block" :gen-mesh #t)
 (build-actor "gun" :texture-bucket 2 :force-run #t)
-
+(build-actor "eichar-gun-test" :texture-bucket 2 :force-run #t :framerate 60 :joint-channel 24)
+(build-actor "eichar-board+0" :texture-bucket 2 :force-run #t :framerate 60 :joint-channel 24)
 ;;;;;;;;;;;;;;;;;;;;;
 ;; Game Engine Code
 ;;;;;;;;;;;;;;;;;;;;;
